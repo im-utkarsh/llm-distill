@@ -1,0 +1,12 @@
+transformers
+torch
+datasets
+peft
+bitsandbytes
+accelerate
+scipy
+evaluate
+pyyaml
+tqdm
+pandas
+numpy

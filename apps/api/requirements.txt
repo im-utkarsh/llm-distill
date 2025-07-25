@@ -1,4 +1,10 @@
 # apps/api/requirements.txt
 fastapi
 uvicorn[standard]
+pydantic
 pydantic-settings
+
+# Machine Learning & Model Serving
+torch --index-url https://download.pytorch.org/whl/cpu
+transformers
+accelerate

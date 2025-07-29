@@ -3,6 +3,7 @@ fastapi
 uvicorn[standard]
 pydantic
 pydantic-settings
+sse-starlette
 
 # Machine Learning & Model Serving
 torch --index-url https://download.pytorch.org/whl/cpu

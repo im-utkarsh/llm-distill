@@ -4,7 +4,8 @@ import { useChatDispatch } from './providers/ChatProvider';
 import { ChatProvider } from './providers/ChatProvider';
 import Starfield from './components/Starfield';
 import CrtFilters from './components/CrtFilters';
-import ChatList from './features/chat-list/ChatList'; // Import the real ChatList
+import ChatList from './features/chat-list/ChatList';
+import ChatView from './features/chat-view/ChatView';
 
 function AppWrapper() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -41,13 +42,6 @@ function AppWrapper() {
     }
   };
 
-  // ChatView is STILL a placeholder for this commit
-  const ChatView = () => (
-      <div className="flex-1 flex flex-col items-center justify-center text-crt-text p-2">
-        <h2 className="text-3xl text-crt-orange">[INTERFACE STANDBY]</h2>
-      </div>
-  );
-
   return (
     <div className="relative h-screen w-full p-2 sm:p-4 flex items-center justify-center bg-crt-bg overflow-hidden">
       <CrtFilters />
@@ -64,9 +58,8 @@ function AppWrapper() {
             <ChatList setIsSidebarOpen={setIsSidebarOpen} setShowModal={setShowModal} />
           </aside>
 
-          {/* Main content uses the placeholder */}
           <main className="flex-1 flex flex-col min-w-0">
-            <ChatView />
+    <ChatView setIsSidebarOpen={setIsSidebarOpen} />
           </main>
         </div>
 

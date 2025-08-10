@@ -41,7 +41,6 @@ export default function ChatView({ setIsSidebarOpen }: ChatViewProps) {
 
   return (
     <div className="h-full flex flex-col bg-transparent">
-      {/* ✨ CHANGED: Removed max-h and overflow-y-auto from the header itself. */}
       <header className="p-3 border-b-2 border-crt-border flex items-start gap-4">
         <button
           onClick={() => setIsSidebarOpen(true)}
@@ -53,7 +52,6 @@ export default function ChatView({ setIsSidebarOpen }: ChatViewProps) {
 
         <div className="flex-1 truncate min-w-0">
           <h2 className="font-bold text-xl text-crt-orange truncate">{activeChat.title}</h2>
-          {/* ✨ CHANGED: Applied max-h and overflow-y-auto directly to the context paragraph. */}
           <p className="text-sm text-crt-text/80 mt-0.5 whitespace-pre-wrap break-words max-h-24 overflow-y-auto">
             {activeChat.context}
           </p>
@@ -61,19 +59,16 @@ export default function ChatView({ setIsSidebarOpen }: ChatViewProps) {
       </header>
 
       <div className="flex-1 p-3 overflow-y-auto min-h-0">
-        {/* ✨ FIX: Removed `space-y-4` from this container. */}
         <div className="flex flex-col">
           {activeChat.messages.map((message, index) => {
-            // ✨ FIX: Add logic to conditionally apply margin based on message order.
-            let marginTopClass = 'mt-6'; // Default large space between conversation turns.
+            let marginTopClass = 'mt-6';
             if (index > 0) {
               const prevMessage = activeChat.messages[index - 1];
-              // If it's a model's response immediately after a user's prompt, use a smaller margin.
               if (message.role === 'model' && prevMessage.role === 'user') {
-                marginTopClass = 'mt-1'; // Small space for a direct reply.
+                marginTopClass = 'mt-1';
               }
             } else {
-              marginTopClass = ''; // No margin for the very first message.
+              marginTopClass = '';
             }
 
             return (

@@ -13,7 +13,7 @@ export const chatReducer = (state: AppState, action: Action): AppState => {
         messages: [],
         createdAt: Date.now(),
         isStreaming: false,
-        draftMessage: '', // ✨ INITIALIZE THE DRAFT MESSAGE
+        draftMessage: '',
       };
       const newChats = [newChat, ...state.chats];
       return {
@@ -26,7 +26,6 @@ export const chatReducer = (state: AppState, action: Action): AppState => {
     case 'DELETE_CHAT': {
       const updatedChats = state.chats.filter(c => c.id !== action.payload.chatId);
       let newActiveChatId = state.activeChatId;
-      // If the deleted chat was the active one, activate the first chat in the list or null.
       if (state.activeChatId === action.payload.chatId) {
         newActiveChatId = updatedChats[0]?.id || null;
       }
@@ -63,10 +62,6 @@ export const chatReducer = (state: AppState, action: Action): AppState => {
     case 'APPEND_STREAM_TOKEN': {
         const { chatId, token } = action.payload;
         
-      // This is an immutable update. Instead of modifying the existing state,
-      // we create a new `chats` array. For the target chat, we create a new
-      // `messages` array, updating only the last message. This is crucial for
-      // React's change detection to work correctly.
         return {
             ...state,
             chats: state.chats.map(chat => {
@@ -78,14 +73,12 @@ export const chatReducer = (state: AppState, action: Action): AppState => {
                 let generationTime;
 
                 if (isFirstToken && chat.streamingStartTime) {
-                  // Calculate time to first token and set it
                   generationTime = (Date.now() - chat.streamingStartTime) / 1000;
                 }
 
                 const updatedLastMessage = {
                     ...lastMessage,
                     content: lastMessage.content + token,
-                    // Set generationTime if it was just calculated
                     ...(generationTime !== undefined && { generationTime }),
                 };
 
@@ -116,7 +109,6 @@ export const chatReducer = (state: AppState, action: Action): AppState => {
         ...state,
         chats: state.chats.map(chat => {
           if (chat.id === chatId) {
-            // Ensure there are messages to remove
             if (chat.messages.length >= 2) {
               return { ...chat, messages: chat.messages.slice(0, -2) };
             }

@@ -28,7 +28,6 @@ export default function ChatListItem({ id, title, isActive, onClick }: ChatListI
   const activeClasses = 'bg-crt-orange text-crt-bg';
   const inactiveClasses = 'hover:bg-crt-border/50 text-crt-text';
 
-  // ✨ FIX #2: Conditionally set the delete icon color based on the active state
   const deleteIconColor = isActive ? 'text-crt-bg' : 'text-crt-text/50';
 
   return (

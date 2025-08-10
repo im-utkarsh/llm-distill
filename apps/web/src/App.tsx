@@ -53,7 +53,6 @@ function AppWrapper() {
         </div>
 
         <div className="flex flex-1 min-h-0">
-          {/* Sidebar now uses the REAL ChatList component */}
           <aside className={`w-72 md:w-64 lg:w-72 xl:w-72 bg-crt-panel border-r-2 border-crt-border z-20 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 absolute top-0 left-0 h-full ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <ChatList setIsSidebarOpen={setIsSidebarOpen} setShowModal={setShowModal} />
           </aside>
@@ -63,7 +62,6 @@ function AppWrapper() {
           </main>
         </div>
 
-        {/* The "New Session" modal JSX */}
         {showModal && (
           <div className="fixed inset-0 bg-crt-bg/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-crt-panel border-2 border-crt-orange w-full max-w-2xl flex flex-col max-h-[90vh] shadow-crt-glow shadow-crt-glow-orange" onClick={(e) => e.stopPropagation()}>
@@ -92,7 +90,6 @@ function AppWrapper() {
   );
 }
 
-// The main App component remains the same
 function App() {
   return (
     <ChatProvider>

@@ -1,13 +1,14 @@
 // frontend/src/features/chat-view/MessageInput.tsx
 
-// ... (imports are unchanged)
 import { ArrowRight, Square } from 'lucide-react';
 import { useChatDispatch, useChatState } from '../../providers/ChatProvider';
+import { useSseStream } from '../../hooks/useSseStream';
 import { useEffect, useRef } from 'react';
 
 export default function MessageInput() {
   const { activeChatId, chats } = useChatState();
   const dispatch = useChatDispatch();
+  const { startStream, stopStream } = useSseStream();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const activeChat = chats.find(c => c.id === activeChatId);
@@ -25,10 +26,15 @@ export default function MessageInput() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!prompt.trim() || !activeChat || isStreaming) return;
+    startStream(activeChat.id, prompt, activeChat.context);
+    dispatch({ type: 'UPDATE_DRAFT_MESSAGE', payload: { chatId: activeChat.id, text: '' } });
   };
 
   const handleStop = () => {
-    // pass
+    if (activeChat) {
+      stopStream(activeChat.id, { isManualStop: true });
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

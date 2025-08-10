@@ -121,14 +121,13 @@
 		),
 		/* rows */
 			linear-gradient(90deg, rgba(34, 139, 34, 0.2) 2px, transparent 2px),
-		/* cols */ linear-gradient(rgba(34, 139, 34, 0.1) 3px, transparent 3px),
+		linear-gradient(rgba(34, 139, 34, 0.1) 3px, transparent 3px),
 		/* thicker rows */
-			linear-gradient(90deg, rgba(34, 139, 34, 0.1) 3px, transparent 3px); /* thicker cols */
+			linear-gradient(90deg, rgba(34, 139, 34, 0.1) 3px, transparent 3px);
 	background-size: 61px 57px, 67px 54px, 130px 119px, 120px 111px;
 
 	background-position: 0 0, 0 0, 1px 2px, 2px 1px;
 
-	/* The magic wobble effect from our SVG filter */
 	filter: url(#crtWobble);
 	mix-blend-mode: screen;
 	opacity: 0.38;

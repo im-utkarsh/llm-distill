@@ -76,7 +76,6 @@ export default function ChatView({ setIsSidebarOpen }: ChatViewProps) {
             <ChatMessage
               message={message}
               isStreaming={!!activeChat.isStreaming && index === activeChat.messages.length - 1}
-              streamingStartTime={activeChat.streamingStartTime}
             />
               </div>
             );

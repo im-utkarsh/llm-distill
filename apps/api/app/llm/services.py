@@ -17,25 +17,78 @@ def run_inference_sync(job: Dict[str, Any], loop: asyncio.AbstractEventLoop, can
     client_id = job["client_id"]
     response_queue = job["response_queue"]
 
-    messages = [{"role": "user", "content": f"Context: {job['context']}\n\nQuestion: {job['prompt']}"}] if job["context"] else [{"role": "user", "content": job["prompt"]}]
-    streamer = TextIteratorStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
+    try:
+        messages = [{"role": "user", "content": f"Context: {job['context']}\n\nQuestion: {job['prompt']}"}] if job["context"] else [{"role": "user", "content": job["prompt"]}]
+        streamer = TextIteratorStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
+        inputs = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True, return_tensors="pt").to(model.device)
+        generation_kwargs = get_generation_kwargs(inputs, streamer)
 
-    inputs = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True, return_tensors="pt").to(model.device)
-    generation_kwargs = get_generation_kwargs(inputs, streamer)
+        generation_thread = Thread(target=model.generate, kwargs=generation_kwargs)
+        generation_thread.start()
 
-    generation_thread = Thread(target=model.generate, kwargs=generation_kwargs)
-    generation_thread.start()
+        # --- NEW: Server-side prefix stripping logic ---
+        buffer = ""
+        state = "INITIAL"
+        WORD_LIMIT = 15
+        TRIGGER_PHRASE = "Sure,"
+        DELIMITER = ":\n\n"
+        # ---
 
-    for token in streamer:
+        for token in streamer:
+            if client_id in cancellation_requests:
+                logging.info(f"Cancellation for {client_id} detected during streaming.")
+                cancellation_requests.discard(client_id)
+                break
+
+            # If we are already streaming, just send the token
+            if state == "STREAMING":
+                future = asyncio.run_coroutine_threadsafe(response_queue.put({"token": token}), loop)
+                future.result()
+                continue
+
+            # Otherwise, add to the buffer and check our conditions
+            buffer += token
+
+            # Check if the stream starts with the trigger phrase
+            if state == "INITIAL":
+                trimmed_buffer = buffer.strip()
+                if trimmed_buffer.startswith(TRIGGER_PHRASE):
+                    state = "BUFFERING"
+                # If it's clear the stream doesn't start with the trigger, flush and stream
+                elif len(trimmed_buffer) > len(TRIGGER_PHRASE):
+                    future = asyncio.run_coroutine_threadsafe(response_queue.put({"token": buffer}), loop)
+                    future.result()
+                    state = "STREAMING"
+
+            # If we've seen the trigger, look for the delimiter
+            if state == "BUFFERING":
+                if DELIMITER in buffer:
+                    # Delimiter found, discard prefix and send the rest
+                    parts = buffer.split(DELIMITER, 1)
+                    if len(parts) > 1 and parts[1]:
+                       future = asyncio.run_coroutine_threadsafe(response_queue.put({"token": parts[1]}), loop)
+                       future.result()
+                    state = "STREAMING"
+                # If we've buffered too many words without finding the delimiter, flush and stream
+                elif len(buffer.strip().split()) >= WORD_LIMIT:
+                    future = asyncio.run_coroutine_threadsafe(response_queue.put({"token": buffer}), loop)
+                    future.result()
+                    state = "STREAMING"
+
+        # If the stream ends while buffering, flush the buffer
+        if state != "STREAMING" and buffer:
+            asyncio.run_coroutine_threadsafe(response_queue.put({"token": buffer}), loop)
+
+        generation_thread.join()
+
+    except Exception as e:
+        logging.error(f"Error during inference for client {client_id}: {e}", exc_info=True)
+
+    finally:
+        # Always signal the end to the client
+        asyncio.run_coroutine_threadsafe(response_queue.put({"event": "end"}), loop)
         if client_id in cancellation_requests:
-            logging.info(f"Cancellation for {client_id} detected during streaming.")
             cancellation_requests.discard(client_id)
-            break
-        future = asyncio.run_coroutine_threadsafe(response_queue.put({"token": token}), loop)
-        future.result()
-
-    generation_thread.join()
-    asyncio.run_coroutine_threadsafe(response_queue.put({"event": "end"}), loop)
 
 async def fifo_inference_worker(app: FastAPI):
     """Pulls inference jobs from a queue and dispatches them."""

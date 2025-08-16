@@ -18,14 +18,12 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   
   const reducerWithPersistence = (state: AppState, action: Action): AppState => {
     const newState = chatReducer(state, action);
-    // Persist the new state to local storage
     setPersistedState(newState);
     return newState;
   };
   
   const [state, dispatch] = useReducer(reducerWithPersistence, persistedState);
 
-  // Set the first chat as active on initial load if none is set
   useEffect(() => {
     if (!state.activeChatId && state.chats.length > 0) {
       dispatch({ type: 'SET_ACTIVE_CHAT', payload: { chatId: state.chats[0].id } });

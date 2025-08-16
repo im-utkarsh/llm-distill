@@ -10,12 +10,11 @@ const generateStars = (count: number, colorRGB: string) => {
     const x = Math.floor(Math.random() * canvasWidth);
     const y = Math.floor(Math.random() * canvasHeight);
 
-    const opacity = (Math.random() * 0.7 + 0.2).toFixed(2); // Opacity: 0.2 to 0.9
+    const opacity = (Math.random() * 0.7 + 0.2).toFixed(2);
 
     let blur = 0;
     let spread = 0;
 
-    // Give a certain percentage of stars a glow
     if (Math.random() < 0.35) {
       blur = Math.floor(Math.random() * 3) + 1;
       spread = Math.random() < 0.3 ? 1 : 0;
@@ -27,9 +26,9 @@ const generateStars = (count: number, colorRGB: string) => {
 };
 
 const Starfield: React.FC = () => {
-  const starsSmall  = useMemo(() => generateStars(700, '179, 224, 179'), []); // Muted green
-  const starsMedium = useMemo(() => generateStars(200, '160, 255, 160'), []); // Lighter green
-  const starsLarge  = useMemo(() => generateStars(100, '179, 224, 179'), []); // Muted green
+  const starsSmall  = useMemo(() => generateStars(700, '179, 224, 179'), []); 
+  const starsMedium = useMemo(() => generateStars(200, '160, 255, 160'), []); 
+  const starsLarge  = useMemo(() => generateStars(100, '179, 224, 179'), []); 
 
   return (
     <div className="starfield-container" aria-hidden="true">

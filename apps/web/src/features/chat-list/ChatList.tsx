@@ -1,5 +1,4 @@
-// frontend/src/features/chat-list/ChatList.tsx
-
+// apps/web/src/features/chat-list/ChatList.tsx
 import { useState } from 'react';
 import { Plus, Search, X } from 'lucide-react';
 import { useChatState } from '../../providers/ChatProvider';
@@ -22,7 +21,6 @@ export default function ChatList({ setIsSidebarOpen, setShowModal }: ChatListPro
     const inMessages = chat.messages.some(msg => msg.content.toLowerCase().includes(term));
     return inTitle || inContext || inMessages;
   });
-
 
   return (
     <div className="flex flex-col h-full bg-transparent text-crt-text">

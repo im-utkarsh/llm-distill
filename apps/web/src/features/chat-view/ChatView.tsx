@@ -1,4 +1,4 @@
-// frontend/src/features/chat-view/ChatView.tsx
+// apps/web/src/features/chat-view/ChatView.tsx
 
 import { useEffect, useRef } from 'react';
 import { Menu, Terminal } from 'lucide-react';

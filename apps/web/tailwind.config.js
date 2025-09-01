@@ -48,6 +48,14 @@ export default {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0' },
         },
+        'stars-move': {
+          'from': { 
+            backgroundPosition: '0 0, 0 0, 0 0, 0 0'
+          },
+          'to': { 
+            backgroundPosition: '-10000px 5000px, -5000px 2500px, -20000px 10000px, -2000px 1000px'
+          },
+        },
         flicker: {
           '0%, 100%': { opacity: '1' },
           '10.5%': { opacity: '0.95' },
@@ -64,6 +72,7 @@ export default {
       // Make animations available as utility classes (e.g., animate-blink)
       animation: {
         blink: 'blink 1s step-end infinite',
+        'stars-move': 'stars-move 500s linear infinite',
         flicker: 'flicker 0.15s infinite',
       },
       boxShadow: {

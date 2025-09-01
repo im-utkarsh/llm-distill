@@ -1,11 +1,11 @@
 // apps/web/src/App.tsx
 import { useState, useRef, useEffect } from 'react';
 import { useChatDispatch } from './providers/ChatProvider';
+import ChatList from './features/chat-list/ChatList';
+import ChatView from './features/chat-view/ChatView';
 import { ChatProvider } from './providers/ChatProvider';
 import Starfield from './components/Starfield';
 import CrtFilters from './components/CrtFilters';
-import ChatList from './features/chat-list/ChatList';
-import ChatView from './features/chat-view/ChatView';
 
 function AppWrapper() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -47,16 +47,24 @@ function AppWrapper() {
       <CrtFilters />
       <Starfield />
       <div className={`relative z-10 w-full h-full max-w-7xl flex flex-col bg-crt-panel border-2 border-crt-border-green shadow-crt-glow-border shadow-crt-glow-neon-green ${!showModal ? 'animate-flicker crt-effect' : ''}`}>
-        {/* Header remains the same */}
+
         <div className="px-4 py-2 border-b-2 border-crt-border">
           <h1 className="text-crt-orange tracking-widest text-xl">LLM DISTILLATION INTERFACE</h1>
         </div>
 
         <div className="flex flex-1 min-h-0">
-          <aside className={`w-72 md:w-64 lg:w-72 xl:w-72 bg-crt-panel border-r-2 border-crt-border z-20 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 absolute top-0 left-0 h-full ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <aside
+            className={`w-72 md:w-64 lg:w-72 xl:w-72 bg-crt-panel border-r-2 border-crt-border z-20 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex absolute top-0 left-0 h-full ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+          >
             <ChatList setIsSidebarOpen={setIsSidebarOpen} setShowModal={setShowModal} />
           </aside>
-
+          {isSidebarOpen && (
+            <div
+              className="fixed inset-0 bg-black/60 z-10 md:hidden"
+              onClick={() => setIsSidebarOpen(false)}
+              aria-hidden="true"
+            ></div>
+          )}
           <main className="flex-1 flex flex-col min-w-0">
     <ChatView setIsSidebarOpen={setIsSidebarOpen} />
           </main>
@@ -79,6 +87,7 @@ function AppWrapper() {
                 </label>
               </div>
               <div className="p-4 border-t-2 border-crt-orange flex justify-center sm:justify-end items-center gap-4">
+                <p className="hidden sm:block text-sm text-crt-text/70 mr-auto">[Ctrl+Enter] TO CONFIRM</p>
                 <button onClick={() => setShowModal(false)} className="px-6 py-2 bg-crt-border text-crt-text hover:bg-crt-text hover:text-crt-bg">ABORT</button>
                 <button onClick={handleCreateChat} className="px-6 py-2 bg-crt-orange/80 text-crt-bg hover:bg-crt-orange disabled:bg-crt-border disabled:text-crt-text/50 disabled:cursor-not-allowed" disabled={!newChatContext.trim()}>INITIALIZE</button>
               </div>
@@ -95,7 +104,7 @@ function App() {
     <ChatProvider>
       <AppWrapper />
     </ChatProvider>
-  );
+  )
 }
 
 export default App;

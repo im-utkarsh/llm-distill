@@ -1,6 +1,6 @@
 // frontend/src/providers/ChatProvider.tsx
 
-import React, { createContext, useReducer, useContext, ReactNode, Dispatch, useEffect } from 'react';
+import React, { createContext, useReducer, useContext, type ReactNode, type Dispatch, useEffect } from 'react';
 import type { AppState, Action } from '../types';
 import { chatReducer } from './chatReducer';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -8,6 +8,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 const initialState: AppState = {
   chats: [],
   activeChatId: null,
+  isStreaming: false,
 };
 
 const ChatStateContext = createContext<AppState | undefined>(undefined);

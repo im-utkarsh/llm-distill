@@ -1,4 +1,5 @@
 # apps/api/requirements.txt
+# Web Framework
 fastapi
 uvicorn[standard]
 pydantic

@@ -1,10 +1,14 @@
-// frontend/src/features/chat-view/MessageInput.tsx
-
+// apps/web/src/features/chat-view/MessageInput.tsx
 import { ArrowRight, Square } from 'lucide-react';
 import { useChatDispatch, useChatState } from '../../providers/ChatProvider';
 import { useSseStream } from '../../hooks/useSseStream';
 import { useEffect, useRef } from 'react';
 
+/**
+ * Renders the text input area for sending messages, along with
+ * send/stop buttons. Manages the draft message state and stream control.
+ * @returns {React.ReactElement} The message input form.
+ */
 export default function MessageInput() {
   const { activeChatId, chats } = useChatState();
   const dispatch = useChatDispatch();
@@ -15,28 +19,32 @@ export default function MessageInput() {
   const isStreaming = activeChat?.isStreaming ?? false;
   const prompt = activeChat?.draftMessage ?? '';
 
-  // Auto-resize textarea
+  // Effect to auto-resize the textarea based on its content.
   useEffect(() => {
     const el = textareaRef.current;
     if (el) {
-      el.style.height = 'auto';
-      el.style.height = `${el.scrollHeight}px`;
+      el.style.height = 'auto'; // Reset height
+      el.style.height = `${el.scrollHeight}px`; // Set to scroll height
     }
   }, [prompt]);
 
+  /** Handles form submission to start the stream. */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim() || !activeChat || isStreaming) return;
     startStream(activeChat.id, prompt, activeChat.context);
+    // Clear the draft message from state after submission.
     dispatch({ type: 'UPDATE_DRAFT_MESSAGE', payload: { chatId: activeChat.id, text: '' } });
   };
 
+  /** Handles stopping an in-progress stream. */
   const handleStop = () => {
     if (activeChat) {
       stopStream(activeChat.id, { isManualStop: true });
     }
   };
 
+  /** Updates the draft message in the global state as the user types. */
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (activeChat) {
       dispatch({
@@ -55,6 +63,7 @@ export default function MessageInput() {
         value={prompt}
         onChange={handleInputChange}
         onKeyDown={(e) => {
+            // Submit on Enter, but allow newlines with Shift+Enter.
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 handleSubmit(e);
@@ -67,6 +76,7 @@ export default function MessageInput() {
       />
       <div className="flex items-center gap-2 mt-0.5">
         {isStreaming ? (
+          // Show Stop button when streaming
           <button
             type="button"
             onClick={handleStop}
@@ -76,6 +86,7 @@ export default function MessageInput() {
             <Square size={20} />
           </button>
         ) : (
+          // Show Send button otherwise
           <button
             type="submit"
             className="px-4 py-2 flex items-center gap-2 bg-crt-orange text-crt-bg hover:opacity-80 disabled:bg-crt-border disabled:text-crt-text/50 disabled:cursor-not-allowed"

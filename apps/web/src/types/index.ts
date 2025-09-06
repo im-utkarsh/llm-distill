@@ -1,11 +1,15 @@
 // apps/web/src/types/index.ts
+
+/** Represents a single message in a chat session. */
 export interface Message {
   id: string;
   role: 'user' | 'model';
   content: string;
+  /** Time in seconds from request submission to first token generation. */
   generationTime?: number;
 }
 
+/** Represents a full chat session. */
 export interface Chat {
   id: string;
   title: string;
@@ -13,16 +17,20 @@ export interface Chat {
   messages: Message[];
   createdAt: number;
   isStreaming?: boolean;
+  /** `Date.now()` timestamp when streaming started. */
   streamingStartTime?: number;
+  /** The current text in the message input, saved per-chat. */
   draftMessage?: string;
 }
 
+/** Represents the entire application state. */
 export interface AppState {
   chats: Chat[];
   activeChatId: string | null;
 }
 
-// All possible actions our app can take to change the state
+// Defines all possible actions that can modify the AppState.
+// This discriminated union provides type safety in the reducer.
 export type Action =
   | { type: 'CREATE_CHAT'; payload: { context: string; title: string } }
   | { type: 'DELETE_CHAT'; payload: { chatId: string } }

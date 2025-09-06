@@ -4,15 +4,27 @@ import { Plus, Search, X } from 'lucide-react';
 import { useChatState } from '../../providers/ChatProvider';
 import ChatListItem from './ChatListItem';
 
+/**
+ * Props for the ChatList component.
+ * @typedef {object} ChatListProps
+ * @property {(isOpen: boolean) => void} setIsSidebarOpen - Function to control the visibility of the sidebar on mobile.
+ * @property {(isOpen: boolean) => void} setShowModal - Function to control the visibility of the "New Session" modal.
+ */
 interface ChatListProps {
   setIsSidebarOpen: (isOpen: boolean) => void;
   setShowModal: (isOpen: boolean) => void;
 }
 
+/**
+ * Renders the sidebar containing the list of chat sessions and controls.
+ * @param {ChatListProps} props - The component props.
+ * @returns {React.ReactElement} The chat list sidebar.
+ */
 export default function ChatList({ setIsSidebarOpen, setShowModal }: ChatListProps) {
   const { chats, activeChatId } = useChatState();
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Filter chats based on the search term, looking in title, context, and messages.
   const filteredChats = chats.filter(chat => {
     const term = searchTerm.toLowerCase();
     if (!term) return true;
@@ -24,6 +36,7 @@ export default function ChatList({ setIsSidebarOpen, setShowModal }: ChatListPro
 
   return (
     <div className="flex flex-col h-full bg-transparent text-crt-text">
+      {/* Header with "New Session" and close buttons */}
       <div className="p-3 border-b-2 border-crt-border flex items-center gap-4">
         <button
           onClick={() => setShowModal(true)}
@@ -41,6 +54,7 @@ export default function ChatList({ setIsSidebarOpen, setShowModal }: ChatListPro
         </button>
       </div>
 
+      {/* Search input field */}
       <div className="p-3 border-b-2 border-crt-border">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-crt-text" />
@@ -54,6 +68,7 @@ export default function ChatList({ setIsSidebarOpen, setShowModal }: ChatListPro
         </div>
       </div>
 
+      {/* Scrollable list of chat sessions */}
       <div className="flex-1 overflow-y-auto min-h-0">
         <nav className="p-1 space-y-1">
           {filteredChats.map(chat => (
@@ -62,7 +77,7 @@ export default function ChatList({ setIsSidebarOpen, setShowModal }: ChatListPro
               id={chat.id}
               title={chat.title}
               isActive={chat.id === activeChatId}
-              onClick={() => setIsSidebarOpen(false)}
+              onClick={() => setIsSidebarOpen(false)} // Close sidebar on selection (mobile)
             />
           ))}
         </nav>

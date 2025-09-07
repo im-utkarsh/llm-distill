@@ -22,7 +22,7 @@ class Settings(BaseSettings):
 
     # --- CORS (Cross-Origin Resource Sharing) ---
     # A list of allowed origins for CORS. Essential for frontend-backend communication.
-    CORS_ORIGINS: List[str] = ["http://localhost:5174", "http://localhost"]
+    CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://localhost"]
 
     # Pydantic settings configuration.
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)

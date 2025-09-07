@@ -1,12 +1,19 @@
-transformers
+# ml/scripts/requirements.txt
+
+# Core ML/DL Framework
 torch
+
+# Hugging Face Ecosystem
+transformers
 datasets
 peft
 bitsandbytes
 accelerate
-scipy
 evaluate
+
+# Utilities
 pyyaml
 tqdm
 pandas
 numpy
+scipy

@@ -1,8 +1,10 @@
 // apps/web/src/providers/ChatProvider.tsx
-import React, { createContext, useReducer, useContext, type ReactNode, type Dispatch, useEffect } from 'react';
-import type { AppState, Action } from '../types';
+
+import { useReducer, useEffect, type ReactNode } from 'react';
 import { chatReducer } from './chatReducer';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { ChatStateContext, ChatDispatchContext } from './ChatContext'; 
+import type { AppState, Action } from '../types';
 
 // The initial state for the chat application.
 const initialState: AppState = {
@@ -10,15 +12,9 @@ const initialState: AppState = {
   activeChatId: null,
 };
 
-// Create contexts for the state and the dispatch function.
-const ChatStateContext = createContext<AppState | undefined>(undefined);
-const ChatDispatchContext = createContext<Dispatch<Action> | undefined>(undefined);
-
 /**
  * Provides the chat state and dispatch function to its children.
- * It integrates the reducer with `useLocalStorage` to persist the chat history.
- * @param {{ children: ReactNode }} props - The component props.
- * @returns {React.ReactElement} The provider component.
+ * This component exports the provider.
  */
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
   // `useLocalStorage` hook to persist the entire app state.
@@ -48,26 +44,4 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       </ChatDispatchContext.Provider>
     </ChatStateContext.Provider>
   );
-};
-
-/**
- * Custom hook to access the chat state.
- * Throws an error if used outside of a ChatProvider.
- * @returns {AppState} The current chat state.
- */
-export const useChatState = () => {
-  const context = useContext(ChatStateContext);
-  if (!context) throw new Error('useChatState must be used within a ChatProvider');
-  return context;
-};
-
-/**
- * Custom hook to access the dispatch function for chat actions.
- * Throws an error if used outside of a ChatProvider.
- * @returns {Dispatch<Action>} The dispatch function.
- */
-export const useChatDispatch = () => {
-  const context = useContext(ChatDispatchContext);
-  if (!context) throw new Error('useChatDispatch must be used within a ChatProvider');
-  return context;
 };

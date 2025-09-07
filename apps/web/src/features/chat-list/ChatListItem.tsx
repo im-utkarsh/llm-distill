@@ -1,6 +1,6 @@
 // frontend/src/features/chat-list/ChatListItem.tsx
 import { Trash2 } from 'lucide-react';
-import { useChatDispatch } from '../../providers/ChatProvider';
+import { useChatDispatch } from '../../providers/ChatContext';
 
 /**
  * Props for the ChatListItem component.

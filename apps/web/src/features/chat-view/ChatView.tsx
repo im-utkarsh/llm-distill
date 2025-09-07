@@ -1,7 +1,7 @@
 // apps/web/src/features/chat-view/ChatView.tsx
 import { useEffect, useRef } from 'react';
 import { Menu, Terminal } from 'lucide-react';
-import { useChatState } from '../../providers/ChatProvider';
+import { useChatState } from '../../providers/ChatContext';
 import ChatMessage from './ChatMessage';
 import MessageInput from './MessageInput';
 

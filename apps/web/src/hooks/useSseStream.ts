@@ -1,6 +1,6 @@
 // apps/web/src/hooks/useSseStream.ts
 import { useRef, useCallback, useEffect } from 'react';
-import { useChatDispatch, useChatState } from '../providers/ChatProvider';
+import { useChatDispatch, useChatState } from '../providers/ChatContext';
 
 // Get API URL from environment variables, with a fallback for local development.
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';

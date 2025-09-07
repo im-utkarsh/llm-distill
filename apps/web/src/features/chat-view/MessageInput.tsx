@@ -1,6 +1,6 @@
 // apps/web/src/features/chat-view/MessageInput.tsx
 import { ArrowRight, Square } from 'lucide-react';
-import { useChatDispatch, useChatState } from '../../providers/ChatProvider';
+import { useChatDispatch, useChatState } from '../../providers/ChatContext';
 import { useSseStream } from '../../hooks/useSseStream';
 import { useEffect, useRef } from 'react';
 

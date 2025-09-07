@@ -1,6 +1,6 @@
 // apps/web/src/App.tsx
 import { useState, useRef, useEffect } from 'react';
-import { useChatDispatch } from './providers/ChatProvider';
+import { useChatDispatch } from './providers/ChatContext';
 import ChatList from './features/chat-list/ChatList';
 import ChatView from './features/chat-view/ChatView';
 import { ChatProvider } from './providers/ChatProvider';

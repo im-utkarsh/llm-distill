@@ -1,7 +1,7 @@
 // apps/web/src/features/chat-list/ChatList.tsx
 import { useState } from 'react';
 import { Plus, Search, X } from 'lucide-react';
-import { useChatState } from '../../providers/ChatProvider';
+import { useChatState } from '../../providers/ChatContext'; 
 import ChatListItem from './ChatListItem';
 
 /**

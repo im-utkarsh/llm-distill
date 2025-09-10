@@ -83,7 +83,7 @@ function AppWrapper() {
           )}
           {/* Main content area */}
           <main className="flex-1 flex flex-col min-w-0">
-            <ChatView setIsSidebarOpen={setIsSidebarOpen} />
+            <ChatView setIsSidebarOpen={setIsSidebarOpen} setShowModal={setShowModal} />
           </main>
         </div>
 

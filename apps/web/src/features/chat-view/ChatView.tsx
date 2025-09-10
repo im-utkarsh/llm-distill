@@ -1,6 +1,6 @@
 // apps/web/src/features/chat-view/ChatView.tsx
 import { useEffect, useRef } from 'react';
-import { Menu, Terminal } from 'lucide-react';
+import { Menu, Terminal, Plus } from 'lucide-react';
 import { useChatState } from '../../providers/ChatContext';
 import ChatMessage from './ChatMessage';
 import MessageInput from './MessageInput';
@@ -9,9 +9,11 @@ import MessageInput from './MessageInput';
  * Props for the ChatView component.
  * @typedef {object} ChatViewProps
  * @property {(isOpen: boolean) => void} setIsSidebarOpen - Function to control sidebar visibility on mobile.
+ * @property {(isOpen: boolean) => void} setShowModal - Function to control the visibility of the "New Session" modal.
  */
 interface ChatViewProps {
   setIsSidebarOpen: (isOpen: boolean) => void;
+  setShowModal: (isOpen: boolean) => void;
 }
 
 /**
@@ -19,7 +21,7 @@ interface ChatViewProps {
  * @param {ChatViewProps} props - The component props.
  * @returns {React.ReactElement} The main chat interface.
  */
-export default function ChatView({ setIsSidebarOpen }: ChatViewProps) {
+export default function ChatView({ setIsSidebarOpen, setShowModal }: ChatViewProps) {
   const { chats, activeChatId } = useChatState();
   const activeChat = chats.find(chat => chat.id === activeChatId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -39,14 +41,19 @@ export default function ChatView({ setIsSidebarOpen }: ChatViewProps) {
   // Display a placeholder if no chat is active.
   if (!activeChat) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center text-crt-text p-2">
+      <div className="flex-1 flex flex-col items-center justify-center text-crt-text p-4 text-center">
         <Terminal size={64} className="mb-4 text-crt-orange" />
         <h2 className="text-3xl text-crt-orange">[INTERFACE STANDBY]</h2>
-        <pre className="mt-4 text-center whitespace-pre-wrap text-crt-text/80">
+        <pre className="mt-4 text-crt-text/80 whitespace-pre-wrap">
           AWAITING SESSION INITIALIZATION...
-          <br />
-          SELECT A SESSION OR CREATE A NEW ONE TO BEGIN.
         </pre>
+        <button
+          onClick={() => setShowModal(true)}
+          className="mt-8 flex items-center justify-center px-6 py-3 border-2 border-crt-border hover:bg-crt-orange hover:text-crt-bg transition-colors"
+        >
+          <Plus className="w-5 h-5 mr-2" strokeWidth={3} />
+          NEW SESSION
+        </button>
       </div>
     );
   }

@@ -40,10 +40,14 @@ export default function ChatListItem({ id, title, isActive, onClick }: ChatListI
     }
   };
 
-  // Dynamically set CSS classes based on active state.
+  // Check for touch support to adjust UI accordingly.
+  const isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  
+  // Dynamically set CSS classes based on active state and device type.
   const activeClasses = 'bg-crt-orange text-crt-bg';
   const inactiveClasses = 'hover:bg-crt-border/50 text-crt-text';
   const deleteIconColor = isActive ? 'text-crt-bg' : 'text-crt-text/50';
+  const deleteButtonVisibility = isTouchDevice ? 'opacity-100' : 'opacity-0 group-hover:opacity-100';
 
   return (
     <div
@@ -52,10 +56,10 @@ export default function ChatListItem({ id, title, isActive, onClick }: ChatListI
     >
       <span className="truncate">{`> ${title}`}</span>
       
-      {/* Delete button, visible on hover */}
+      {/* Delete button, visible on touch devices or hover for mouse users */}
       <button
         onClick={handleDelete}
-        className={`ml-2 p-1 md:opacity-0 group-hover:opacity-100 transition-opacity ${deleteIconColor}`}
+        className={`ml-2 p-1 transition-opacity ${deleteButtonVisibility} ${deleteIconColor}`}
         aria-label={`Delete chat ${title}`}
       >
         <Trash2 size={16} />

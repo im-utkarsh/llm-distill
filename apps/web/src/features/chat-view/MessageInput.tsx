@@ -2,7 +2,7 @@
 import { ArrowRight, Square } from 'lucide-react';
 import { useChatDispatch, useChatState } from '../../providers/ChatContext';
 import { useSseStream } from '../../hooks/useSseStream';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 /**
  * Renders the text input area for sending messages, along with
@@ -18,6 +18,31 @@ export default function MessageInput() {
   const activeChat = chats.find(c => c.id === activeChatId);
   const isStreaming = activeChat?.isStreaming ?? false;
   const prompt = activeChat?.draftMessage ?? '';
+  
+  // Placeholder Text State for responsiveness
+  const [placeholder, setPlaceholder] = useState("Type your question here...");
+  
+  // Prompt History State
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const userPrompts = useMemo(() => 
+    activeChat?.messages.filter(m => m.role === 'user').map(m => m.content).reverse() ?? [],
+    [activeChat?.messages]
+  );
+
+  // Effect for responsive placeholder
+  useEffect(() => {
+    const updatePlaceholder = () => {
+      setPlaceholder(window.innerWidth < 640 ? "Type question..." : "Type your question here...");
+    };
+    updatePlaceholder();
+    window.addEventListener('resize', updatePlaceholder);
+    return () => window.removeEventListener('resize', updatePlaceholder);
+  }, []);
+
+  // Effect to reset history when chat changes
+  useEffect(() => {
+    setHistoryIndex(-1);
+  }, [activeChatId]);
 
   // Effect to auto-resize the textarea based on its content.
   useEffect(() => {
@@ -31,10 +56,14 @@ export default function MessageInput() {
   /** Handles form submission to start the stream. */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!prompt.trim() || !activeChat || isStreaming) return;
-    startStream(activeChat.id, prompt, activeChat.context);
+    const trimmedPrompt = prompt.trim(); // Trim whitespace from prompt
+    if (!trimmedPrompt || !activeChat || isStreaming) return;
+    
+    startStream(activeChat.id, trimmedPrompt, activeChat.context);
+    
     // Clear the draft message from state after submission.
     dispatch({ type: 'UPDATE_DRAFT_MESSAGE', payload: { chatId: activeChat.id, text: '' } });
+    setHistoryIndex(-1); // Reset history index on send
   };
 
   /** Handles stopping an in-progress stream. */
@@ -51,6 +80,33 @@ export default function MessageInput() {
         type: 'UPDATE_DRAFT_MESSAGE',
         payload: { chatId: activeChat.id, text: e.target.value }
       });
+      setHistoryIndex(-1); // Reset history navigation when user types
+    }
+  };
+  
+  /** Handles keyboard events for history and submission. */
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Submit on Enter, but allow newlines with Shift+Enter.
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit(e);
+        return;
+    }
+
+    // Handle prompt history navigation with arrow keys
+    if (userPrompts.length > 0) {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const newIndex = Math.min(historyIndex + 1, userPrompts.length - 1);
+        setHistoryIndex(newIndex);
+        dispatch({ type: 'UPDATE_DRAFT_MESSAGE', payload: { chatId: activeChat!.id, text: userPrompts[newIndex] } });
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const newIndex = Math.max(historyIndex - 1, -1);
+        setHistoryIndex(newIndex);
+        const newPrompt = newIndex === -1 ? '' : userPrompts[newIndex];
+        dispatch({ type: 'UPDATE_DRAFT_MESSAGE', payload: { chatId: activeChat!.id, text: newPrompt } });
+      }
     }
   };
 
@@ -62,14 +118,8 @@ export default function MessageInput() {
         rows={1}
         value={prompt}
         onChange={handleInputChange}
-        onKeyDown={(e) => {
-            // Submit on Enter, but allow newlines with Shift+Enter.
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
-            }
-        }}
-        placeholder="Type your question here..."
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
         className="w-full p-2 bg-transparent text-crt-orange resize-none focus:outline-none caret-crt-orange max-h-40 text-xl"
         disabled={isStreaming || !activeChat}
         autoFocus

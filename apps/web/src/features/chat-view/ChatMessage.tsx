@@ -28,7 +28,8 @@ export default function ChatMessage({ message, isStreaming, streamingStartTime }
   const isUser = message.role === 'user';
   const { isCopied, copy } = useCopyToClipboard();
 
-  const showCopyButton = message.role === 'model' && message.content.length > 0 && !isStreaming;
+  // Condition to determine if the generation is complete and content is available to copy.
+  const isGenerationComplete = message.role === 'model' && message.content.length > 0 && !isStreaming;
   const hasGenerationTime = message.generationTime !== undefined;
 
   return (
@@ -62,8 +63,8 @@ export default function ChatMessage({ message, isStreaming, streamingStartTime }
             {hasGenerationTime && (
               <span>[Generated in {message.generationTime!.toFixed(2)}s]</span>
             )}
-            {/* Show copy button when streaming is complete */}
-            {showCopyButton && (
+            {/* Show copy button only when streaming is complete */}
+            {isGenerationComplete && (
               <button
                 onClick={() => copy(message.content)}
                 className="flex items-center gap-1 hover:text-crt-orange transition-colors"

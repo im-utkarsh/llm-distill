@@ -1,100 +1,180 @@
-# LLM Distillation Suite: A Full-Stack Distilled Model Server
+<!-- README.md -->
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Hugging Face Model](https://img.shields.io/badge/%F0%9F%A4%97%20Model-Gemma--2B--SQuAD-blue)](https://huggingface.co/im-utkarsh/distilled-gemma-squad-model)
-[![Hugging Face Space](https://img.shields.io/badge/%F0%9F%A4%97%20HF%20Space-API%20Demo-blue)](https://huggingface.co/spaces/im-utkarsh/distilled-gemma-squad)
-
-An end-to-end application demonstrating the distillation of a large Gemma-7B language model into a smaller, faster Gemma-2B student model, served via a streaming REST API with a reactive web interface.
+# LLM Distillation for Edge Deployment
 
 
 
-## Table of Contents
+This project demonstrates the process of **knowledge distillation** to compress a large, powerful Large Language Model (LLM) into a smaller, faster, and more efficient "student" model. The goal is to create a performant model suitable for deployment in resource-constrained environments, such as edge devices, without a catastrophic loss in performance.
 
-- [LLM Distillation Suite: A Full-Stack Distilled Model Server](#llm-distillation-suite-a-full-stack-distilled-model-server)
-	- [Table of Contents](#table-of-contents)
-	- [About The Project](#about-the-project)
-		- [Problem Solved](#problem-solved)
-		- [What I Learned](#what-i-learned)
-	- [Tech Stack](#tech-stack)
-	- [Architecture](#architecture)
-	- [Getting Started](#getting-started)
-		- [Prerequisites](#prerequisites)
-		- [Installation](#installation)
-	- [Deployment](#deployment)
+We fine-tune a **Google Gemma 7B** (teacher) on the SQuAD dataset and distill its knowledge into a **Gemma 2B** (student) model. The final distilled model is served via a high-performance FastAPI backend and is interactive through a retro-themed React web interface.
 
-## About The Project
+---
 
-This project was developed as part of my Master's final year project, exploring techniques to make powerful LLMs more accessible and efficient for real-world applications on resource-constrained devices.
+## 🚀 Live Demos
 
-### Problem Solved
+-   **Frontend UI:** [**llm-distill-ui.onrender.com**](https://llm-distill-ui.onrender.com/)
+-   **Backend API (Hugging Face Space):** [**distilled-gemma-squad**](https://huggingface.co/spaces/im-utkarsh/distilled-gemma-squad)
+-   **Distilled Model (Hugging Face Hub):** [**distilled-gemma-squad-model**](https://huggingface.co/im-utkarsh/distilled-gemma-squad-model)
+-   **Source Code (GitHub):** [**im-utkarsh/llm-distill**](https://github.com/im-utkarsh/llm-distill)
 
-Large language models are computationally expensive and have high latency, making them impractical for many interactive applications. This project implements **knowledge distillation** to create a smaller "student" model (Gemma-2B) that retains a significant portion of the "teacher" model's (Gemma-7B) capabilities on the SQuAD dataset, while being drastically faster and cheaper to run.
+## ✨ Key Features
 
-### What I Learned
+-   **🧠 Efficient Distillation:** Implements a sophisticated distillation process combining cross-entropy, KL divergence, and hidden state MSE loss to transfer knowledge effectively.
+-   **⚡️ High-Performance API:** A fully asynchronous FastAPI backend using Server-Sent Events (SSE) to stream model responses in real-time without blocking.
+-   **🖥️ Retro Interactive UI:** A responsive and engaging frontend built with React, Vite, and Tailwind CSS, styled with a classic CRT terminal aesthetic.
+-   **🔬 Comprehensive ML Pipeline:** Includes reproducible Python scripts for distillation training (`train_distill.py`), qualitative evaluation (`evaluate.py`), and quantitative benchmarking (`quantitative_eval.py`).
+-   **📦 Monorepo Architecture:** A clean, organized monorepo structure containing the `ml` pipeline, `api` server, and `web` client in a single repository for streamlined development.
 
--   Implementing the distillation loss function and fine-tuning both teacher and student models using the Hugging Face `transformers` library.
--   Building a robust, non-blocking, and scalable API with **FastAPI** to serve the model, featuring a queued inference system and Server-Sent Events (SSE) for real-time token streaming.
--   Developing a modern, type-safe frontend with **React, TypeScript, and Vite**, featuring a retro CRT-themed UI and efficient state management for a seamless user experience.
--   Orchestrating a full-stack MLOps pipeline, from model experimentation and deployment on the Hugging Face Hub to a live, interactive application.
+---
 
-## Tech Stack
+## 📊 Performance Results
 
--   **Machine Learning**: Python, PyTorch, Hugging Face (Transformers, Accelerate)
--   **Backend**: FastAPI, Uvicorn, SSE-Starlette
--   **Frontend**: React, TypeScript, Vite, Tailwind CSS
--   **Deployment**: Hugging Face Hub (Model), Hugging Face Spaces (Backend), Render (Frontend)
+The primary goal was to significantly reduce the model's size and improve its speed. The distilled `gemma-2b` model achieves a **~4.9x faster latency** and **~4.8x higher throughput** while using **~20% less VRAM**, with only a minor drop in F1 score on the SQuAD validation set.
 
-## Architecture
+| Metric                   | Teacher (`gemma-7b-it`) | Student (Distilled `gemma-2b-it`) | Improvement       |
+| ------------------------ | ----------------------- | --------------------------------- | ----------------- |
+| **Total Parameters (M)** | 8,538                   | 2,506                             | **70.6% Smaller** |
+| **Disk Size (MB)**       | N/A (Loaded 4-bit)      | 4812.98                           | -                 |
+| **Avg. Latency (ms/ex)** | 5316.26                 | 1090.09                           | **4.9x Faster**   |
+| **Throughput (ex/sec)**  | 0.19                    | 0.92                              | **4.8x Higher**   |
+| **Peak VRAM (MB)**       | 6075.04                 | 4815.53                           | **20.7% Less**    |
+| **F1 Score (%)**         | 19.69                   | 16.87                             | **-2.82 points**  |
+
+---
+
+## 🏛️ High-Level Architecture
+
+This monorepo contains three core packages: the ML service, the API backend, and the web frontend.
 
 ```mermaid
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#0a0a0a",
+    "primaryTextColor": "#00ff00",
+    "backgroundColor": "#0a0a0a",
+    "lineColor": "#FF8C00",
+    "primaryBorderColor": "#00ff00",
+    "secondaryColor": "#FF8C00"
+  }
+}}%%
 graph TD
-    A[React Frontend on Render] -->|HTTP POST /submit| B(FastAPI Backend on HF Spaces);
-    A -->|HTTP GET /stream| B;
-    B -->|Loads Model on Startup| C(Distilled Gemma-2B on HF Hub);
-    B -->|Places Job on Queue| D{Inference Queue};
-    E[Inference Worker] -->|Pulls from| D;
-    E -->|Generates Tokens| E;
-    E -->|Puts Tokens in| F[Client Response Queue];
-    B -->|Streams from| F;
-```
+  subgraph ML["ml (data & notebooks & scripts)"]
+    MLF["data/notebooks"]:::dataCRT
+    MLS["scripts: train, eval"]:::scriptCRT
+    MLF --> MLS
+  end
 
-## Getting Started
+  subgraph API["apps/api"]
+    API_App["API backend (core, llm, config)"]:::apiCRT
+    API_App -->|Loads model| ModelCRT
+  end
 
-To get a local copy up and running, follow these simple steps.
+  subgraph WEB["apps/web"]
+    WEB_App["Web frontend (components, hooks, UI)"]:::webCRT
+    WEB_App -->|Calls API| API_App
+  end
+
+  subgraph MODEL["distilled model"]
+    ModelCRT["distilled‑gemma‑squad"]:::modelCRT
+  end
+
+  MLF -->|Produces model| ModelCRT
+  MLS -->|Trains & evaluates| MLF
+  WEB_App -->|Serves UI| UsersCRT["Users"]
+
+  subgraph "Deployment: Hugging Face"
+    ModelCRT
+  end
+
+  subgraph "Deployment: Render"
+    API_App
+    WEB_App
+  end
+
+  class MLF,MLS,API_App,WEB_App,ModelCRT,UsersCRT defaultCRT;
+
+  classDef dataCRT fill:#0a0a0a,stroke:#00ff00,stroke-width:1px,stroke-dasharray: 3 3;
+  classDef scriptCRT fill:#0a0a0a,stroke:#00ff00,stroke-width:1px,stroke-dasharray: 3 3;
+  classDef apiCRT fill:#0a0a0a,stroke:#00ff00,stroke-width:2px;
+  classDef webCRT fill:#0a0a0a,stroke:#00ff00,stroke-width:2px;
+  classDef modelCRT fill:#0a0a0a,stroke:#00ff00,stroke-width:2px,stroke-dasharray: 5 3;
+  classDef defaultCRT font-family:Monaco,monospace, font-size:12px, color:#00ff00;
+
+
+````
+
+  - `ml/`: Contains all Python scripts for the data processing, model distillation, and evaluation pipeline.
+  - `apps/api/`: A Dockerized FastAPI application that serves the final distilled model.
+  - `apps/web/`: A React + Vite frontend that provides a user interface to interact with the model via the API.
+
+-----
+
+## 🛠️ Getting Started: Local Development
 
 ### Prerequisites
 
--   Python 3.11+
--   Node.js v18+
--   Git
+  - Git
+  - Python 3.10+ and a virtual environment tool (`venv`)
+  - Node.js 18+ and `npm`
+  - (Optional) Docker for containerizing the API
 
-### Installation
+### 1\. Clone the Repository
 
-1.  **Clone the repository:**
-    ```sh
-    git clone [https://github.com/your-username/llm-distillation-suite.git](https://github.com/your-username/llm-distillation-suite.git)
-    cd llm-distillation-suite
-    ```
-2.  **Setup the Backend (`/apps/api`):**
-    - Navigate to the API directory: `cd apps/api`
-    - Create a virtual environment: `python -m venv venv`
-    - Activate it: `.\venv\Scripts\activate` (Windows)
-    - Install dependencies: `pip install -r requirements.txt`
-    - Run the server: `uvicorn app.main:app --host 0.0.0.0 --port 7860 --reload`
-    The API will be running at `http://localhost:7860`.
+```bash
+git clone [https://github.com/im-utkarsh/llm-distill.git](https://github.com/im-utkarsh/llm-distill.git)
+cd llm-distill
+```
 
-3.  **Setup the Frontend (`/apps/web`):**
-    - In a new terminal, navigate to the web directory: `cd apps/web`
-    - Install dependencies: `npm install`
-    - Create a `.env.development` file and add the API URL:
-      ```
-      VITE_API_URL=http://localhost:7860
-      ```
-    - Run the development server: `npm run dev`
-    The frontend will be running at `http://localhost:5173`.
+### 2\. Set Up the Backend API
 
-## Deployment
+```bash
+# Navigate to the API directory
+cd apps/api
 
--   **Model**: The distilled Gemma-2B model is hosted on the [Hugging Face Hub](https://huggingface.co/im-utkarsh/distilled-gemma-squad-model).
--   **Backend**: The FastAPI application is deployed as a [Hugging Face Space](https://huggingface.co/spaces/im-utkarsh/distilled-gemma-squad).
--   **Frontend**: The React application is intended for deployment on a static hosting service like Render or Vercel.
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Start the development server
+# The model will be downloaded from Hugging Face on the first run
+uvicorn app.main:app --host 0.0.0.0 --port 7860 --reload
+```
+
+The API will now be running at `http://localhost:7860`.
+
+### 3\. Set Up the Frontend Web App
+
+```bash
+# Navigate to the web app directory
+cd apps/web
+
+# Install Node.js dependencies
+npm install
+
+# Create an environment file
+cp .env.development .env.local
+
+# Make sure VITE_API_URL in .env.local points to your local API server
+# VITE_API_URL=http://localhost:7860
+
+# Start the development server
+npm run dev
+```
+
+The React application will be available at `http://localhost:5173`.
+
+### 4\. Running the ML Pipeline
+
+The machine learning pipeline has its own detailed instructions for training and evaluation. Please refer to its dedicated guide:
+
+➡️ **[ML Pipeline README](https://www.google.com/search?q=./ml/README.md)**
+
+-----
+
+## 📜 License
+
+This project is licensed under the **MIT License**. See the [LICENSE](https://www.google.com/search?q=LICENSE) file for details.
